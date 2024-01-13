@@ -12,7 +12,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build -o /app/pdfbook-renamer ./cmd/pdfbook-rena
 
 FROM alpine:latest
 RUN apk add --no-cache python3 py3-pip
-RUN pip install pypdf
+RUN pip install pypdf --break-system-packages
  
 COPY --from=build-stage ./app/pdfbook-renamer /app/
 COPY ./pdf-to-text.py /app/
