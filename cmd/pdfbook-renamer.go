@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/dmikoss/pdfbook-renamer/isbn"
+	"github.com/klippa-app/go-pdfium"
 	"github.com/klippa-app/go-pdfium/webassembly"
 )
 
@@ -22,11 +23,44 @@ func main() {
 	}
 }
 
+type pdfengine struct {
+	instance pdfium.Pdfium
+	pool     pdfium.Pool
+}
+
+func NewPdfEngine() (*pdfengine, error) {
+	// initialize pdfium
+	pool, err := webassembly.Init(webassembly.Config{
+		MinIdle:  1, // Makes sure that at least x workers are always available
+		MaxIdle:  1, // Makes sure that at most x workers are ever available
+		MaxTotal: 1, // Maxium amount of workers in total, allows the amount of workers to grow when needed, items between total max and idle max are automatically cleaned up, while idle workers are kept alive so they can be used directly.
+	})
+	if err != nil {
+		return nil, err
+	}
+	instance, err := pool.GetInstance(time.Second * 30)
+	if err != nil {
+		return nil, err
+	}
+	return &pdfengine{instance, pool}, nil
+}
+
+func (p *pdfengine) Destroy() {
+	p.instance.Close()
+	p.pool.Close()
+}
+
 func run() error {
+	// initialize pdfium (with wasm runtime)
+	pdfengine, err := NewPdfEngine()
+	if err != nil {
+		return err
+	}
+	defer pdfengine.Destroy()
 
 	// get pdf file list
 	var pdflist []string
-	err := filepath.Walk("/data/",
+	err = filepath.Walk("/data/",
 		func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
@@ -42,27 +76,10 @@ func run() error {
 		return err
 	}
 
-	// initialize pdfium
-	pool, err := webassembly.Init(webassembly.Config{
-		MinIdle:  1, // Makes sure that at least x workers are always available
-		MaxIdle:  1, // Makes sure that at most x workers are ever available
-		MaxTotal: 1, // Maxium amount of workers in total, allows the amount of workers to grow when needed, items between total max and idle max are automatically cleaned up, while idle workers are kept alive so they can be used directly.
-	})
-	if err != nil {
-		return err
-	}
-	defer pool.Close()
-
-	pdfiumInst, err := pool.GetInstance(time.Second * 30)
-	if err != nil {
-		return err
-	}
-	defer pdfiumInst.Close()
-
 	// pdf processing
 	fetcher := isbn.NewProviderGoogleBooks(http.DefaultClient)
 	for _, path := range pdflist {
-		isbn, err := isbn.FindPdfISBN(path, pagesToScan, pdfiumInst)
+		isbn, err := isbn.FindPdfISBN(path, pagesToScan, pdfengine.instance)
 		if err != nil || isbn == "" {
 			continue
 		} else {
