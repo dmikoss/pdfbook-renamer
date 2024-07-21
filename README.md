@@ -1,4 +1,4 @@
-# CLI utility for automatic renaming pdf book files with isbn information from google books.
+# CLI utility for automatic renaming pdf book with ISBN info from google books.
 
 ### How to use:
 
