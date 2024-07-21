@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"flag"
 	"fmt"
 	"log"
 	"net/http"
@@ -18,7 +19,17 @@ import (
 const pagesToScan = 15
 
 func main() {
-	if err := run(); err != nil {
+	folderPath := flag.String("folder", "", "Path to the folder")
+	flag.Parse()
+	if *folderPath == "" {
+		log.Fatalf("Please provide a folder path with pdfs using the -folder flag")
+	}
+	absFolderPath, err := filepath.Abs(*folderPath)
+	if err != nil {
+		log.Fatalf("Error getting the absolute path of the folder:%v", err)
+	}
+
+	if err := run(absFolderPath); err != nil {
 		log.Fatalf("Fatal error" + err.Error())
 	}
 }
@@ -50,7 +61,7 @@ func (p *pdfengine) Destroy() {
 	p.pool.Close()
 }
 
-func run() error {
+func run(folder string) error {
 	// initialize pdfium (with wasm runtime)
 	pdfengine, err := NewPdfEngine()
 	if err != nil {
@@ -60,7 +71,7 @@ func run() error {
 
 	// get pdf file list
 	var pdflist []string
-	err = filepath.Walk("/data/",
+	err = filepath.Walk(folder,
 		func(path string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err
