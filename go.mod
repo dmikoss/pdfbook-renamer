@@ -3,7 +3,7 @@ module github.com/dmikoss/pdfbook-renamer
 go 1.22
 
 require (
-	github.com/dlclark/regexp2 v1.10.0
+	github.com/dlclark/regexp2 v1.11.4
 	github.com/klippa-app/go-pdfium v1.12.2
 )
 
