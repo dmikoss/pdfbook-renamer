@@ -69,9 +69,11 @@ func FindPdfISBN(path string, numpages int, pdfiumInst pdfium.Pdfium) ( /*isbn*/
 	}
 
 	// Always close the document, this will release its resources.
-	pdfiumInst.FPDF_CloseDocument(&requests.FPDF_CloseDocument{
+	if _, err := pdfiumInst.FPDF_CloseDocument(&requests.FPDF_CloseDocument{
 		Document: doc.Document,
-	})
+	}); err != nil {
+		return "", err
+	}
 
 	for _, rg := range regexps {
 		if match, _ := rg.FindStringMatch(pagestext); match != nil {

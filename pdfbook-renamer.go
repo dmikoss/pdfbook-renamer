@@ -30,7 +30,7 @@ func main() {
 	}
 
 	if err := run(absFolderPath); err != nil {
-		log.Fatalf("Fatal error" + err.Error())
+		log.Fatalf("Fatal error %s", err.Error())
 	}
 }
 
