@@ -8,7 +8,7 @@ CLI utility for automatic renaming pdf book with ISBN info from google books.
    - Download and install the appropriate version for your operating system
    - Verify the installation by running `go version` in your terminal
 
-### How to use:
+## How to use:
 
 1. Run the following command to install the utility: 
     ```bash
