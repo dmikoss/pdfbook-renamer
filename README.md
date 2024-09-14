@@ -10,7 +10,10 @@ CLI utility for automatic renaming pdf book with ISBN info from google books.
 
 ### How to use:
 
-1. Run the following command to install the utility: `go install github.com/dmikoss/pdfbook-renamer`
+1. Run the following command to install the utility: 
+    ```bash
+    go install github.com/dmikoss/pdfbook-renamer
+    ``` 
 2. Copy to ```./folder-with-pdfs``` folder your pdf books.
 3. Run commands in terminal:
     ```bash
@@ -18,5 +21,5 @@ CLI utility for automatic renaming pdf book with ISBN info from google books.
     ```
 4. You PDFs in ```./folder-with-pdfs``` folder will be renamed to form: 
 
-    ```title - author - publication year.pdf```
+    ```title - author - publication_year.pdf```
 
